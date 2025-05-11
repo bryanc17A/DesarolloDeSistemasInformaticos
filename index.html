@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestor de Tareas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f3f3;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .input-section {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .input-section input {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    .input-section button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .input-section button:hover {
+      background-color: #218838;
+    }
+
+    .lista-tareas {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .lista-tareas li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9f9f9;
+      margin-bottom: 8px;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .lista-tareas .completar {
+      background-color: #007bff;
+      margin-right: 5px;
+    }
+
+    .lista-tareas .completar:hover {
+      background-color: #0056b3;
+    }
+
+    .lista-tareas button {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .lista-tareas button:hover {
+      opacity: 0.9;
+    }
+
+    .autor {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Gestor de Tareas</h1>
+    <div class="input-section">
+      <input type="text" id="nuevaTarea" placeholder="Nueva tarea..." />
+      <button onclick="agregarTarea()">Agregar</button>
+    </div>
+
+    <h2>Pendientes</h2>
+    <ul id="tareasPendientes" class="lista-tareas"></ul>
+
+    <h2>Completadas</h2>
+    <ul id="tareasCompletadas" class="lista-tareas"></ul>
+
+    <div class="autor">
+      Autor: Realizado por Bryan Cedeño
+    </div>
+  </div>
+
+  <script>
+    let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+
+    function guardarTareas() {
+      localStorage.setItem("tareas", JSON.stringify(tareas));
+      renderizarTareas();
+    }
+
+    function agregarTarea() {
+      const input = document.getElementById("nuevaTarea");
+      const texto = input.value.trim();
+      if (texto) {
+        tareas.push({ texto, completada: false });
+        input.value = "";
+        guardarTareas();
+      }
+    }
+
+    function completarTarea(index) {
+      tareas[index].completada = true;
+      guardarTareas();
+    }
+
+    function eliminarTarea(index) {
+      tareas.splice(index, 1);
+      guardarTareas();
+    }
+
+    function renderizarTareas() {
+      const listaPendientes = document.getElementById("tareasPendientes");
+      const listaCompletadas = document.getElementById("tareasCompletadas");
+      listaPendientes.innerHTML = "";
+      listaCompletadas.innerHTML = "";
+
+      tareas.forEach((tarea, index) => {
+        const li = document.createElement("li");
+        li.textContent = tarea.texto;
+
+        const btnEliminar = document.createElement("button");
+        btnEliminar.textContent = "Eliminar";
+        btnEliminar.onclick = () => eliminarTarea(index);
+
+        if (!tarea.completada) {
+          const btnCompletar = document.createElement("button");
+          btnCompletar.textContent = "Completar";
+          btnCompletar.className = "completar";
+          btnCompletar.onclick = () => completarTarea(index);
+          li.appendChild(btnCompletar);
+          li.appendChild(btnEliminar);
+          listaPendientes.appendChild(li);
+        } else {
+          li.appendChild(btnEliminar);
+          listaCompletadas.appendChild(li);
+        }
+      });
+    }
+
+    renderizarTareas();
+  </script>
+</body>
+</html>
+
